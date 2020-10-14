@@ -78,23 +78,6 @@ class Learning():
             tqdm_loader.set_description('loss: {:.4} lr:{:.6}'.format(
                 current_loss_mean, self.optimizer.param_groups[0]['lr']))
 
-        # # 중간 결과 디버깅용
-        # # 물체 개수를 판단 (채널이 다르므로 늘 1개)
-        # # TODO: class 개수 4개로 임의 설정
-        # num_class = 4
-        #
-        # # 첫번째 mask는 필요없음
-        # for i in range(1, num_class):
-        #     # 1,2,3번째 마스트
-        #     predicted_i = predicted[0, i, :, :].cpu().detach().numpy()
-        #
-        #     # 데이터 이름에 _1,_2,_3 붙이기
-        #     name_i = f'{batch_idx}_{i}'
-        #
-        #     temp_save_path = Path(self.checkpoints_history_folder, 'interm_result/' + name_i + '.png')
-        #     predicted_i_n = np.zeros(predicted_i.shape)
-        #     predicted_i_n = cv2.normalize(predicted_i, predicted_i_n, 0, 255, cv2.NORM_MINMAX)
-        #     cv2.imwrite(str(temp_save_path), predicted_i_n)
 
         return current_loss_mean
 
@@ -129,29 +112,6 @@ class Learning():
                 best_threshold = max(metrics, key=metrics.get)
                 best_metric = metrics[best_threshold]
                 tqdm_loader.set_description('score: {:.5} on {}'.format(best_metric, best_threshold))
-
-            # # 중간 결과 디버깅용
-            # # 물체 개수를 판단 (채널이 다르므로 늘 1개)
-            # # TODO: class 개수 4개로 임의 설정
-            # num_class = 4
-            # predicted_probas = current_mask * predicted_probas
-            #
-            # if not os.path.exists(Path(self.checkpoints_history_folder, 'interm_result/')):
-            #     os.mkdir(Path(self.checkpoints_history_folder, 'interm_result/'))
-            #
-            # # 첫번째 mask는 필요없음
-            # for i in range(1, num_class):
-            #     # 1,2,3번째 마스트
-            #     predicted_i = predicted_probas[0, i, :, :].cpu().detach().numpy()
-            #
-            #     # 데이터 이름에 _1,_2,_3 붙이기
-            #     name_i = f'{batch_idx}_{i}'
-            #
-            #     temp_save_path = Path(self.checkpoints_history_folder, 'interm_result/' + name_i + '.png')
-            #     predicted_i_n = np.zeros(predicted_i.shape)
-            #     predicted_i_n = cv2.normalize(predicted_i, predicted_i_n, 0, 255, cv2.NORM_MINMAX)
-            #     cv2.imwrite(str(temp_save_path), predicted_i_n)
-
 
         return metrics, best_metric
 

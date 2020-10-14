@@ -1,6 +1,6 @@
 #main
 PIPELINE_NAME: albunet512
-DATA_DIRECTORY: '../input/dataset512'
+DATA_DIRECTORY: '../input/dataset512_separated'
 LOGGER_DIR: 'log'
 
 SEED: 42
@@ -65,7 +65,7 @@ SCHEDULER:
     threshold: 0.0000001
     min_lr: 0.0000001
 
-BATCH_SIZE: 4
+BATCH_SIZE: 10
 GRADIENT_ACCUMULATION_STEPS: 1
 GRADIENT_CLIPPING: 0.1
 EPOCHES: 50

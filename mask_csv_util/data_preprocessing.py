@@ -24,10 +24,10 @@ def argparser():
     parser = argparse.ArgumentParser(description='Prepare png dataset for pneumatorax')
     parser.add_argument('-train_path', default='./rawdata/train', type=str, nargs='?', help='directory with train')
     parser.add_argument('-test_path', default='./rawdata/test', type=str, nargs='?', help='directory with test')
-    parser.add_argument('-out_path', default='./rawdata/dataset1024', type=str, nargs='?',
+    parser.add_argument('-out_path', default='./rawdata/dataset512', type=str, nargs='?',
                         help='path for saving dataset')
     parser.add_argument('-n_train', default=-1, type=int, nargs='?', help='size of train dataset')
-    parser.add_argument('-img_size', default=1024, type=int, nargs='?', help='image size')
+    parser.add_argument('-img_size', default=512, type=int, nargs='?', help='image size')
     parser.add_argument('-n_threads', default=4, type=int, nargs='?', help='number of using threads')
     return parser.parse_args()
 
@@ -39,38 +39,41 @@ def to_binary(img, lower, upper):
 def save_train_file(f, out_path, img_size):
 
     name = f.split('\\')[-1][:-4]
+    # img = read_dicom(f, window_widht=400, window_level=40)
+    # img = resize(img, (img_size, img_size)) * 255
 
-    img = read_dicom(f, window_widht=256, window_level=128)
+    sum_im = np.zeros([img_size, img_size, 3])
+    for i, wl in enumerate([-128, 0, 128]):
+        img1 = read_dicom(f, window_widht=256, window_level=wl)
+        img1 = resize(img1, (img_size, img_size)) * 255
+        sum_im[:, :, i] = img1[:, :, 0]
+    cv2.imwrite('{}/train/{}.png'.format(out_path, name), sum_im)
+
 
 
     # 레이블 이미지
     label_img = imread(args.train_path+ '/Label/' + name + '.png')
     encode = resize(label_img, (img_size, img_size))*255
-    encode_1 = to_binary(encode, 1.0, 1.0)*255
-    encode_2 = to_binary(encode, 2.0, 2.0)*255
-    encode_3 = to_binary(encode, 3.0, 3.0)*255
-    img = resize(img, (img_size, img_size)) * 255
 
-    cv2.imwrite('{}/train/{}_128.png'.format(out_path, name), img)
-    cv2.imwrite('{}/mask/{}_128.png'.format(out_path, name), encode)
-
-    # cv2.imwrite('{}/mask/{}.png'.format(out_path, name + '_1'), encode_1)
-    # cv2.imwrite('{}/mask/{}.png'.format(out_path, name+'_2'), encode_2)
-    # cv2.imwrite('{}/mask/{}.png'.format(out_path, name+'_3'), encode_3)
     color_im = np.zeros([img_size, img_size, 3])
-    color_im[:, :, 0] = encode_1
-    color_im[:, :, 1] = encode_2
-    color_im[:, :, 2] = encode_3
+    for i in range(1,4):
+        encode_ = to_binary(encode, i*1.0, i*1.0) * 255
+        color_im[:, :, i-1] = encode_
 
+    cv2.imwrite('{}/mask/{}.png'.format(out_path, name), encode)
     cv2.imwrite('{}/mask_sum/{}_c.png'.format(out_path, name), color_im)
 
 
 def save_test_file(f, out_path, img_size):
-    img = read_dicom(f, window_widht=256, window_level=128)
     name = f.split('\\')[-1][:-4]
-    img = resize(img, (img_size, img_size)) * 255
 
-    cv2.imwrite('{}/test/{}_128.png'.format(out_path, name), img)
+    sum_im = np.zeros([img_size, img_size, 3])
+    for i, wl in enumerate([-128, 0, 128]):
+        img1 = read_dicom(f, window_widht=256, window_level=wl)
+        img1 = resize(img1, (img_size, img_size)) * 255
+        sum_im[:, :, i] = img1[:, :, 0]
+
+    cv2.imwrite('{}/test/{}.png'.format(out_path, name), sum_im)
 
 
 def save_train(train_images_names, out_path, img_size=128, n_train=-1, n_threads=1):
