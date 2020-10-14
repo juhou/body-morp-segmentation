@@ -76,7 +76,7 @@ pip install -r requirements.txt
 ## Data Preparation
 
 ```bash
-kaggle competitions download -c body-morphometry-for-sarcopenia
+kaggle competitions download -c body-~~~
 ```
 
 ## Pipeline launch example
