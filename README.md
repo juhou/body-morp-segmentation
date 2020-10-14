@@ -1,4 +1,4 @@
-# SIIM-ACR Pneumothorax Segmentation
+# body-morp-segmentation
 
 Please see the attached pdf file named '파이프라인 설명서.pdf'
 
