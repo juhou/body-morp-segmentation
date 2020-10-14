@@ -157,8 +157,7 @@ def main():
         train_dataset = BodyMorpDataset(
             data_folder=dataset_folder, mode='train', 
             transform=train_transform, fold_index=fold_id,
-            folds_distr_path=folds_distr_path,
-            use_ext_data=use_ext_data, folds_ext_path = folds_ext_path
+            folds_distr_path=folds_distr_path
         )
         train_sampler = PartDataSampler(folds_distr_path, fold_id, non_empty_mask_proba)
         if use_sampler:
