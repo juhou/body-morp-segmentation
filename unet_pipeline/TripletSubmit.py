@@ -14,7 +14,7 @@ from utils.mask_functions import mask2rle, rle_encode
 from utils.helpers import load_yaml
 
 def argparser():
-    parser = argparse.ArgumentParser(description='Body Morphometry pipeline')
+    parser = argparse.ArgumentParser(description='Body Morp pipeline')
     parser.add_argument('cfg', type=str, help='experiment name')
     return parser.parse_args()
 
