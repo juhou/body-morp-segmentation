@@ -159,6 +159,13 @@ def build_rle_dict(mask_dict, n_objects_dict,
         #  class 개수 4개 설정
         num_class = 4
 
+        if mask.shape[1] != 512:
+            # 마스크 리사이즈
+            reshaped_mask = np.zeros([4, 512, 512])
+            for i in range(0, num_class):
+                reshaped_mask[i,:,:] = cv2.resize(mask[i,:,:], dsize=(512, 512), interpolation=cv2.INTER_LINEAR)
+            mask = reshaped_mask
+
         max_mask = (mask.max(axis=0,keepdims=1) == mask) * 1.0
         mask_123 = np.zeros([max_mask.shape[1], max_mask.shape[2]])
 
