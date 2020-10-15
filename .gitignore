@@ -22,6 +22,5 @@
 *.zip
 *.rar
 .idea/
-data_preprocessing.py
 
 subs/
