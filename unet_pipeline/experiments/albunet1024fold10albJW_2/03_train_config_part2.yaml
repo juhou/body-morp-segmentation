@@ -27,7 +27,7 @@ FOLD:
   FILE: folds/train_folds_10.csv
 
 # preprocessing - no use
-USE_SAMPLER: True   # True
+USE_SAMPLER: False   # True
 NON_EMPTY_MASK_PROBA: 0.8
 
 

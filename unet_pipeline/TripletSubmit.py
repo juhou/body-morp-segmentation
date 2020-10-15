@@ -95,15 +95,14 @@ def remove_smallest_multiclass(mask, min_contour_area, name_i):
         # contour 찾기
         contours, _ = cv2.findContours(mask_i.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
-        if (name_i == 'case209'):
-            # 영역을 크기별로 구분함 - min은 2nd-pass를 위해 저장
-            min_contours[i] = [c for c in contours if cv2.contourArea(c) <= 1100]
-            max_contours = [c for c in contours if cv2.contourArea(c) > 1100]
-        else:
-            # 영역을 크기별로 구분함 - min은 2nd-pass를 위해 저장
-            min_contours[i] = [c for c in contours if cv2.contourArea(c) <= min_contour_area]
-            max_contours = [c for c in contours if cv2.contourArea(c) > min_contour_area]
+        # 영역을 크기별로 구분함 - min은 2nd-pass를 위해 저장
+        min_contours[i] = [c for c in contours if cv2.contourArea(c) <= min_contour_area]
+        max_contours = [c for c in contours if cv2.contourArea(c) > min_contour_area]
 
+        # if (name_i == 'case209'):
+        #     # 영역을 크기별로 구분함 - min은 2nd-pass를 위해 저장
+        #     min_contours[i] = [c for c in contours if cv2.contourArea(c) <= 1100]
+        #     max_contours = [c for c in contours if cv2.contourArea(c) > 1100]
 
         # 영역 따로 그리기
         mask_larges[i,:,:] = cv2.drawContours(mask_larges[i,:,:], max_contours,-1, (255), thickness=cv2.FILLED)
@@ -118,7 +117,7 @@ def remove_smallest_multiclass(mask, min_contour_area, name_i):
             mask_larges_ = mask_larges.copy()/255
 
             # 작은 영역은 그린 후 팽창(dilate) 시킨다
-            mask_small = cv2.drawContours(np.zeros([512,512], np.uint8), contour,-1, (255), thickness=cv2.FILLED)
+            mask_small = cv2.drawContours(np.zeros([mask_uint8.shape[1],mask_uint8.shape[2]], np.uint8), contour,-1, (255), thickness=cv2.FILLED)
             mask_small_dilate = cv2.dilate(mask_small, cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3)), iterations=3)
 
             # 작은영역 boolean mask
