@@ -11,22 +11,18 @@ from albumentations.pytorch.transforms import ToTensor
 
 class BodyMorpDataset(Dataset):
     def __init__(self, data_folder, mode, transform=None,
-                 fold_index=None, folds_distr_path=None,
-                 use_ext_data=False, folds_ext_path=None):
+                 fold_index=None, folds_distr_path=None):
         
         self.transform = transform
         self.mode = mode
-        self.use_ext = use_ext_data
-        
+
         # change to your path
         self.train_image_path = '{}/train/'.format(data_folder)
         self.train_mask_path = '{}/mask/'.format(data_folder)
         self.test_image_path = '{}/test/'.format(data_folder)
-        self.train_ext_path = '{}/ext/'.format(data_folder)
 
         self.fold_index = None
         self.folds_distr_path = folds_distr_path
-        self.folds_ext_path = folds_ext_path
         self.set_mode(mode, fold_index)
 
         ###################################
@@ -40,10 +36,6 @@ class BodyMorpDataset(Dataset):
 
         if self.mode == 'train':
             folds = pd.read_csv(self.folds_distr_path)
-            if self.use_ext:
-                folds2 = pd.read_csv(self.folds_ext_path)
-                folds = pd.concat([folds, folds2])
-
             folds.fold = folds.fold.astype(str)
             folds = folds[folds.fold != fold_index]
             

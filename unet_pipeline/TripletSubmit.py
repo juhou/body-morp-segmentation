@@ -14,7 +14,7 @@ from utils.mask_functions import mask2rle, rle_encode
 from utils.helpers import load_yaml
 
 def argparser():
-    parser = argparse.ArgumentParser(description='Body Morphometry pipeline')
+    parser = argparse.ArgumentParser(description='Body Morp pipeline')
     parser.add_argument('cfg', type=str, help='experiment name')
     return parser.parse_args()
 
@@ -72,6 +72,7 @@ def apply_thresholds(mask, n_objects, area_threshold, top_score_threshold,
             dsize=(512, 512),
             interpolation=cv2.INTER_LINEAR
         )
+
     reshaped_mask = (reshaped_mask > 63).astype(int) * 255
     # cv2.imwrite(name_i + '_.png', reshaped_mask)
     return rle_encode(reshaped_mask)
@@ -101,7 +102,10 @@ def build_rle_dict(mask_dict, n_objects_dict,
             # 데이터 이름에 _1,_2,_3 붙이기
             name_i = name + f'_{i}'
             n_objects = n_objects_dict.get(name_i, 0)
+            mask_123 = mask_123 + max_mask[i,:,:]*i
 
+
+        for i in range(1, num_class):
             if n_objects == 0:
                 # 물체가 없는경우 rle는 공백
                 rle_dict[name_i] = ''
@@ -115,7 +119,6 @@ def build_rle_dict(mask_dict, n_objects_dict,
                     leak_score_threshold,
                     use_contours, min_contour_area, sub_img_path + name_i
                 )
-            mask_123 = mask_123 + max_mask[i,:,:]*i
 
         rgb_image = np.transpose(max_masked[1:4,:,:]*255, (1, 2, 0))
         

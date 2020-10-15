@@ -34,3 +34,7 @@ class TripletMaskBinarization(MaskBinarization):
             pred_mask = predicted > bottom_score_threshold
             pred_mask[clf_mask.sum(dim=self.dims) < area_threshold] = 0
             yield pred_mask
+
+
+
+

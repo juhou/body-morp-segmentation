@@ -1,9 +1,9 @@
-DATA_DIRECTORY: '../input/dataset512/'
+DATA_DIRECTORY: '../input/dataset1024/'
 
 SEED: 42
 NUM_WORKERS: 4
 DEVICE: cuda
-BATCH_SIZE: 4
+BATCH_SIZE: 5
 
 MODEL:
   PY: models.ternausnets

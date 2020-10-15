@@ -126,10 +126,7 @@ def main():
         os.environ["CUDA_VISIBLE_DEVICES"] = ','.join(map(str, train_config["DEVICE_LIST"]))
 
     pipeline_name = train_config['PIPELINE_NAME']
-    use_ext_data = train_config['USE_EXT_DATA']
-    if use_ext_data:
-        folds_ext_path = train_config['EXT_DATA_FOLD']
-    folds_ext_path = None
+
     train_transform = albu.load(train_config['TRAIN_TRANSFORMS']) 
     valid_transform = albu.load(train_config['VALID_TRANSFORMS'])
 
@@ -160,8 +157,7 @@ def main():
         train_dataset = BodyMorpDataset(
             data_folder=dataset_folder, mode='train', 
             transform=train_transform, fold_index=fold_id,
-            folds_distr_path=folds_distr_path,
-            use_ext_data=use_ext_data, folds_ext_path = folds_ext_path
+            folds_distr_path=folds_distr_path
         )
         train_sampler = PartDataSampler(folds_distr_path, fold_id, non_empty_mask_proba)
         if use_sampler:
