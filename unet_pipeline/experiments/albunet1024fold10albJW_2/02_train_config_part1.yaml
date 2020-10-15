@@ -1,19 +1,18 @@
 #main
-PIPELINE_NAME: albunet1024
+PIPELINE_NAME: albunet1024fold10albJW_2
 DATA_DIRECTORY: '../input/dataset1024'
-LOGGER_DIR: 'log'
 
+BATCH_SIZE: 5
 SEED: 42
 DEVICE: cuda
 DEVICE_LIST: [0]
-WORKERS: 12
 
 
 MODEL:
   PRETRAINED: 
-    PIPELINE_PATH: experiments/albunet1024
+    PIPELINE_PATH: experiments/albunet1024fold10albJW_2
     CHECKPOINTS_FOLDER: checkpoints
-    PIPELINE_NAME: albunet1024
+    PIPELINE_NAME: albunet1024fold10albJW_2
 
   FREEZE: False
   PY: models.ternausnets
@@ -23,9 +22,9 @@ MODEL:
       num_classes: 4
 
 FOLD:
-  NUMBER: 5
-  USEFOLDS: [0,1,2,3,4]
-  FILE: folds/train_folds_5.csv
+  NUMBER: 10
+  USEFOLDS: [0,1,2,3,4,5,6,7,8,9]
+  FILE: folds/train_folds_10.csv
 
 # preprocessing - no use
 USE_SAMPLER: False   # True
@@ -33,9 +32,9 @@ NON_EMPTY_MASK_PROBA: 0.8
 
 
 TRAIN_TRANSFORMS:
-    transforms/train_transforms_complex_1024.json
+    transforms/train_transforms_hjw_1024.json
 VALID_TRANSFORMS:
-    transforms/valid_transforms_1024.json
+    transforms/valid_transforms_hjw_1024.json
 
 # training
 CRITERION: 
@@ -69,11 +68,11 @@ SCHEDULER:
 #    T_0: 1
 #    T_mult: 2
 
-BATCH_SIZE: 5
+
 GRADIENT_ACCUMULATION_STEPS: 1
 GRADIENT_CLIPPING: 0.1
 EPOCHES: 50
-EARLY_STOPPING: 12
+EARLY_STOPPING: 10
 
 # saving
 CHECKPOINTS:
@@ -93,3 +92,6 @@ EVALUATION_METRIC:
   CLASS: dice_metric
   ARGS: 
     per_image: True
+
+WORKERS: 12
+LOGGER_DIR: 'log'
