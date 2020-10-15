@@ -1,9 +1,9 @@
 SAMPLE_SUB: ../input/sample_submission.csv
 
 RESULT_WEIGHTS: 
-  experiments/albunet512/result_top3.pkl: 0.34
-  experiments/albunet1024/result_top3.pkl: 0.33
-  experiments/seunet512/result_top3.pkl : 0.33
+  experiments/albunet1024/result_top3.pkl: 0.32
+  experiments/albunet1024fold10/result_top3.pkl: 0.33
+  experiments/albunet1024fold10albJW/result_top3.pkl : 0.35
 
 AREA_THRESHOLD: 800
 TOP_SCORE_THRESHOLD: 0.25
@@ -14,4 +14,4 @@ USECONTOURS: False
 RESHAPE_MODE: True
 MIN_CONTOUR_AREA: 100
 
-SUB_FILE: ../subs/ensemble01.csv
+SUB_FILE: ../subs/ensemble01_567.csv

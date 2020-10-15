@@ -72,6 +72,7 @@ def apply_thresholds(mask, n_objects, area_threshold, top_score_threshold,
             dsize=(512, 512),
             interpolation=cv2.INTER_LINEAR
         )
+
     reshaped_mask = (reshaped_mask > 63).astype(int) * 255
     # cv2.imwrite(name_i + '_.png', reshaped_mask)
     return rle_encode(reshaped_mask)
