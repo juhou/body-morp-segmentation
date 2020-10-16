@@ -1,18 +1,18 @@
 #main
-PIPELINE_NAME: albunet1024fold10albJW_2
+PIPELINE_NAME: albunet1024fold10albJW
 DATA_DIRECTORY: '../input/dataset1024'
 LOGGER_DIR: 'log'
-BATCH_SIZE: 2
-
+BATCH_SIZE: 10
+WORKERS: 20
 
 DEVICE: cuda
 DEVICE_LIST: [0,1]
 
 MODEL:
   PRETRAINED:
-    PIPELINE_PATH: experiments/albunet1024fold10albJW_2
+    PIPELINE_PATH: experiments/albunet1024fold10albkjh
     CHECKPOINTS_FOLDER: checkpoints
-    PIPELINE_NAME: albunet1024fold10albJW_2
+    PIPELINE_NAME: albunet1024fold10albkjh
 
   FREEZE: False
   PY: models.ternausnets
@@ -23,7 +23,7 @@ MODEL:
 
 FOLD:
   NUMBER: 10
-  USEFOLDS: [9]
+  USEFOLDS: [0,1,2,3,4,5,6,7,8,9]
   FILE: folds/train_folds_10.csv
 
 # preprocessing - no use
@@ -31,9 +31,9 @@ USE_SAMPLER: False   # True
 NON_EMPTY_MASK_PROBA: 0.8
 
 TRAIN_TRANSFORMS:
-    transforms/train_transforms_hjw_1024.json
+    transforms/train_transforms_kjh_1024.json
 VALID_TRANSFORMS:
-    transforms/valid_transforms_hjw_1024.json
+    transforms/valid_transforms_1024.json
 
 # training
 CRITERION: 
@@ -87,5 +87,5 @@ EVALUATION_METRIC:
   ARGS: 
     per_image: True
     
-WORKERS: 12
+
 SEED: 42

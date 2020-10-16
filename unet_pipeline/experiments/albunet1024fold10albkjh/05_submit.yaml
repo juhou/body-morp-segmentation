@@ -1,5 +1,5 @@
 SAMPLE_SUB: ../input/sample_submission.csv
-MASK_DICT: experiments/seunet512/result_top3.pkl
+MASK_DICT: experiments/albunet1024fold10albkjh/result_top3.pkl
 
 AREA_THRESHOLD: 800
 TOP_SCORE_THRESHOLD: 0.4
@@ -7,7 +7,6 @@ BOTTOM_SCORE_THRESHOLD: 0.25
 LEAK_SCORE_THRESHOLD: 0.15
 USELEAK: False
 USECONTOURS: False
-MIN_CONTOUR_AREA: 100
+MIN_CONTOUR_AREA: 1300
 
-
-SUB_FILE: ../subs/result_seunet512.csv
+SUB_FILE: ../subs/result_albunet1024fold10albkjh.csv

@@ -61,19 +61,52 @@ def inference_image(model, images, device):
     return masks
 
 
+# def inference_model(model, loader, device, use_flip):
+#     mask_dict = {}
+#     for image_ids, images in tqdm(loader):
+#         masks = inference_image(model, images, device)
+#         if use_flip:
+#             flipped_imgs = torch.flip(images, dims=(3,))
+#             flipped_masks = inference_image(model, flipped_imgs, device)
+#             flipped_masks = np.flip(flipped_masks, axis=3) # 종욱: 2class일땐 axis=2
+#             masks = (masks + flipped_masks) / 2
+#         for name, mask in zip(image_ids, masks):
+#             mask_dict[name] = mask.astype(np.float32)
+#     return mask_dict
+
+
 def inference_model(model, loader, device, use_flip):
     mask_dict = {}
     for image_ids, images in tqdm(loader):
         masks = inference_image(model, images, device)
         if use_flip:
-            flipped_imgs = torch.flip(images, dims=(3,))
-            flipped_masks = inference_image(model, flipped_imgs, device)
-            flipped_masks = np.flip(flipped_masks, axis=3) # 종욱: 2class일땐 axis=2
-            masks = (masks + flipped_masks) / 2
+            planes = [2, 3]
+            tta_mask = inference_image(model, images.rot90(1, planes), device)
+            tta_mask = np.rot90(tta_mask, 3, planes)
+            masks += tta_mask
+            tta_mask = inference_image(model, images.rot90(2, planes), device)
+            tta_mask = np.rot90(tta_mask, 2, planes)
+            masks += tta_mask
+            tta_mask = inference_image(model, images.rot90(3, planes), device)
+            tta_mask = np.rot90(tta_mask, 1, planes)
+            masks += tta_mask
+            tta_mask = inference_image(model, images.flip(planes[0]), device)
+            tta_mask = np.flip(tta_mask, planes[0])
+            masks += tta_mask
+            tta_mask = inference_image(model, images.rot90(1, planes).flip(planes[0]), device)
+            tta_mask = np.rot90(np.flip(tta_mask, planes[0]), 3, planes)
+            masks += tta_mask
+            tta_mask = inference_image(model, images.rot90(2, planes).flip(planes[0]), device)
+            tta_mask = np.rot90(np.flip(tta_mask, planes[0]), 2, planes)
+            masks += tta_mask
+            tta_mask = inference_image(model, images.flip(planes[0]).rot90(1, planes), device)
+            tta_mask = np.flip(np.rot90(tta_mask, 3, planes), planes[0])
+            masks += tta_mask
+            masks = masks/8
         for name, mask in zip(image_ids, masks):
             mask_dict[name] = mask.astype(np.float32)
     return mask_dict
-    
+
 
 def main():
     args = argparser()

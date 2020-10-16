@@ -1,6 +1,6 @@
 #main
-PIPELINE_NAME: seunet512
-DATA_DIRECTORY: '../input/dataset512'
+PIPELINE_NAME: seunet1024fold10albJW
+DATA_DIRECTORY: '../input/dataset1024'
 LOGGER_DIR: 'log'
 
 SEED: 42
@@ -10,9 +10,9 @@ WORKERS: 12
 
 MODEL:
   PRETRAINED: 
-    PIPELINE_PATH: experiments/seunet
+    PIPELINE_PATH: experiments/seunet1024fold10albJW
     CHECKPOINTS_FOLDER: checkpoints
-    PIPELINE_NAME: seunet512
+    PIPELINE_NAME: seunet1024fold10albJW
   FREEZE: False
   PY: models.selim_zoo.unet
   CLASS: SCSEUnet
@@ -20,18 +20,19 @@ MODEL:
       seg_classes: 4
 
 FOLD:
-  NUMBER: 5
-  USEFOLDS: [0,1,2,3,4]
-  FILE: folds/train_folds_5.csv
+  NUMBER: 10
+  USEFOLDS: [0,1,2,3,4,5,6,7,8,9]
+  FILE: folds/train_folds_10.csv
 
-# preprocessing
-USE_SAMPLER: False
-NON_EMPTY_MASK_PROBA: 0.4
+# preprocessing - no use
+USE_SAMPLER: False   # True
+NON_EMPTY_MASK_PROBA: 0.8
 
 TRAIN_TRANSFORMS:
-    transforms/train_transforms_complex_512.json
+    transforms/train_transforms_hjw_1024.json
 VALID_TRANSFORMS:
-    transforms/valid_transforms_512.json
+    transforms/valid_transforms_hjw_1024.json
+
 
 # training
 CRITERION:
@@ -39,9 +40,9 @@ CRITERION:
     CLASS: ComboLoss
     ARGS:
         weights:
-            bce: 3
+            bce: 1
             dice: 1
-            focal: 4
+            focal: 1
         channel_weights: [1,1,1,1]
 
             
@@ -64,11 +65,11 @@ SCHEDULER:
 #    T_0: 1
 #    T_mult: 2
 
-BATCH_SIZE: 1
+BATCH_SIZE: 5
 GRADIENT_ACCUMULATION_STEPS: 1
 GRADIENT_CLIPPING: 0.1
 EPOCHES: 50
-EARLY_STOPPING: 12
+EARLY_STOPPING: 15
 
 # saving
 CHECKPOINTS:

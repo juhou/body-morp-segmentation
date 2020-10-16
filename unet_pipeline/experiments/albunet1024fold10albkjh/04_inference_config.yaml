@@ -3,7 +3,7 @@ DATA_DIRECTORY: '../input/dataset1024/'
 SEED: 42
 NUM_WORKERS: 4
 DEVICE: cuda
-BATCH_SIZE: 1
+BATCH_SIZE: 5
 
 MODEL:
   PY: models.ternausnets
@@ -15,8 +15,8 @@ MODEL:
 CHECKPOINTS:
   FULL_FOLDER: checkpoints
   BEST_FOLDER: checkpoints
-  PIPELINE_PATH: experiments/albunet1024fold10albJW_2
-  PIPELINE_NAME: albunet1024fold10albJW_2
+  PIPELINE_PATH: experiments/albunet1024fold10albkjh
+  PIPELINE_NAME: albunet1024fold10albkjh
 
 SUBMIT_BEST: True
 USEFOLDS: [0,1,2,3,4,5,6,7,8,9]
@@ -29,7 +29,7 @@ SELECTED_CHECKPOINTS:
 
 
 TEST_TRANSFORMS:
-    transforms/valid_transforms_hjw_1024.json
-FLIP: True
+    transforms/valid_transforms_1024.json
+FLIP: False
 
 RESULT: result_top3.pkl

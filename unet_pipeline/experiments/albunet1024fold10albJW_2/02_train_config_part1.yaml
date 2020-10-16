@@ -2,10 +2,10 @@
 PIPELINE_NAME: albunet1024fold10albJW_2
 DATA_DIRECTORY: '../input/dataset1024'
 
-BATCH_SIZE: 5
+BATCH_SIZE: 2
 SEED: 42
 DEVICE: cuda
-DEVICE_LIST: [0]
+DEVICE_LIST: [0,1]
 
 
 MODEL:
@@ -23,7 +23,7 @@ MODEL:
 
 FOLD:
   NUMBER: 10
-  USEFOLDS: [0,1,2,3,4,5,6,7,8,9]
+  USEFOLDS: [9]
   FILE: folds/train_folds_10.csv
 
 # preprocessing - no use
