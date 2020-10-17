@@ -3,7 +3,7 @@ DATA_DIRECTORY: '../input/dataset512/'
 SEED: 42
 NUM_WORKERS: 4
 DEVICE: cuda
-BATCH_SIZE: 10
+BATCH_SIZE: 2
 
 MODEL:
   PY: models.ternausnets
@@ -29,7 +29,7 @@ SELECTED_CHECKPOINTS:
 
 
 TEST_TRANSFORMS:
-    transforms/valid_transforms_512.json
-FLIP: False
+    transforms/valid_transforms_hjw_512.json
+FLIP: True
 
 RESULT: result_top3.pkl

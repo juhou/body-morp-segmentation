@@ -78,9 +78,7 @@ def apply_thresholds(mask, n_objects, area_threshold, top_score_threshold,
     # cv2.imwrite(name_i + '_.png', reshaped_mask)
     return rle_encode(reshaped_mask)
 
-def remove_smallest_multiclass(mask, min_contour_area, name_i):
-
-
+def remove_smallest_multiclass(mask, min_contour_area, iterations=3):
     mask_uint8 = (mask*255).astype(np.uint8)
 
     num_class = mask_uint8.shape[0]
@@ -99,49 +97,57 @@ def remove_smallest_multiclass(mask, min_contour_area, name_i):
         min_contours[i] = [c for c in contours if cv2.contourArea(c) <= min_contour_area]
         max_contours = [c for c in contours if cv2.contourArea(c) > min_contour_area]
 
-        # if (name_i == 'case209'):
-        #     # 영역을 크기별로 구분함 - min은 2nd-pass를 위해 저장
-        #     min_contours[i] = [c for c in contours if cv2.contourArea(c) <= 1100]
-        #     max_contours = [c for c in contours if cv2.contourArea(c) > 1100]
-
         # 영역 따로 그리기
         mask_larges[i,:,:] = cv2.drawContours(mask_larges[i,:,:], max_contours,-1, (255), thickness=cv2.FILLED)
 
 
-    # 2nd-pass - 겹치는 영역이 젤 많은곳으로 컨투어를 보낸다.
-    for i in range(0, num_class):
-        # 작은 조각 하나씩 둘러보면서 적용하기
-        min_contours_ = min_contours[i]
+    # # 2nd-pass - 겹치는 영역이 젤 많은곳으로 컨투어를 보낸다.
+    # for i in range(0, num_class):
+    #     # 작은 조각 하나씩 둘러보면서 적용하기
+    #     min_contours_ = min_contours[i]
+    #
+    #     for contour in min_contours_:
+    #         # 아주 작은 영역은 스킵
+    #         if len(contour) < 3:
+    #             continue
+    #
+    #         mask_larges_ = mask_larges.copy()/255
+    #
+    #         # 작은 영역은 그린 후 팽창(dilate) 시킨다
+    #         mask_small = cv2.fillPoly(np.zeros([mask_uint8.shape[1],mask_uint8.shape[2]], np.uint8), pts=[contour], color=(255))
+    #         mask_small_dilate = cv2.dilate(mask_small, cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3)), iterations=iterations)
+    #
+    #         # 작은영역 boolean mask
+    #         mask_small_dilate = (mask_small_dilate>0)
+    #
+    #         # 큰 영역의 확률맵
+    #         prob_large_contour = mask * mask_larges_
+    #
+    #         # 확률이 제일 높은 영역의 채널 번호를 가져온다.
+    #         score = []
+    #         for c in range(0, num_class):
+    #             # 탐색하는곳과 원본 class가 같아도, small은 이미 0이므로 그대로 진행
+    #             num_non_zeros = np.count_nonzero((prob_large_contour[c, :, :] * mask_small_dilate))
+    #             if num_non_zeros>0:
+    #                 score.append(((prob_large_contour[c, :, :] * mask_small_dilate).sum()) / num_non_zeros)
+    #             else:
+    #                 score.append(0)
+    #
+    #         # 최고 점수가 나온 채널 획득
+    #         idx = np.argwhere(score == np.amax(score))
+    #
+    #         # 탐지 확률이 매우 낮으면 그리지 않고 스킵한다.
+    #         if (np.max(score) < 0.35):
+    #             continue
+    #
+    #         # 작은 근육 영역은 지방으로 분류되지 않는다.
+    #         if (i==2) & (idx[0]==3):
+    #             idx[0] = 2
+    #
+    #         # 높은 영역의 채널로 small contour를 편입시킨다.
+    #         mask_larges[idx[0], :, :] += mask_small
 
-        for contour in min_contours_:
-            mask_larges_ = mask_larges.copy()/255
-
-            # 작은 영역은 그린 후 팽창(dilate) 시킨다
-            mask_small = cv2.drawContours(np.zeros([mask_uint8.shape[1],mask_uint8.shape[2]], np.uint8), contour,-1, (255), thickness=cv2.FILLED)
-            mask_small_dilate = cv2.dilate(mask_small, cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3)), iterations=3)
-
-            # 작은영역 boolean mask
-            mask_small_dilate = (mask_small_dilate>0)
-            # 큰 영역의 확률맵
-            prob_large_contour = mask * mask_larges_
-
-            # 확률이 제일 높은 영역의 채널 번호를 가져온다.
-            score = []
-            for c in range(0, num_class):
-                # 탐색하는곳과 원본 class가 같아도, small은 이미 0이므로 그대로 진행
-                score.append((prob_large_contour[c, :, :] * mask_small_dilate).sum())
-            # 최고 점수가 나온 채널 획득
-            idxes = np.argwhere(score == np.amax(score))
-
-            # 높은 영역의 채널로 small contour를 편입시킨다.
-            mask_larges[idxes[0], :, :] += mask_small
-    # k=1
-    # mask_uint8[k, :, :]
-    # mask_larges[k,:,:]
-
-    output = mask_larges.astype(np.float64)/255.0
-
-    return output
+    return mask_larges.astype(np.float64)/255.0
 
 
 
@@ -154,14 +160,17 @@ def build_rle_dict(mask_dict, n_objects_dict,
 
     for name, mask in tqdm(mask_dict.items()):
 
-        # 물체 개수를 판단 (채널이 다르므로 늘 1개)
-        # TODO: 대회를 위한 후처리 하드코딩
-        #  class 개수 4개 설정
-        num_class = 4
+
+        # if name in ['case232','case223','case213']:
+        #     pass
+        # else:
+        #     continue
+
+        num_class = mask.shape[0]
 
         if mask.shape[1] != 512:
             # 마스크 리사이즈
-            reshaped_mask = np.zeros([4, 512, 512])
+            reshaped_mask = np.zeros([num_class, 512, 512])
             for i in range(0, num_class):
                 reshaped_mask[i,:,:] = cv2.resize(mask[i,:,:], dsize=(512, 512), interpolation=cv2.INTER_LINEAR)
             mask = reshaped_mask
@@ -171,7 +180,7 @@ def build_rle_dict(mask_dict, n_objects_dict,
 
         # rgb 형태 마스크 저장 (확률 반영) - 전처리 없음
         max_masked = mask * max_mask
-        rgb_image = np.transpose((max_masked[1:4, :, :]/np.max(max_masked[1:4, :, :])) * 255, (1, 2, 0))
+        rgb_image = np.transpose((max_masked[1:num_class, :, :]/np.max(max_masked[1:num_class, :, :])) * 255, (1, 2, 0))
         cv2.imwrite(sub_img_path + name + '_rgb.png', rgb_image)
 
         # 레이블 형태 마스크 저장
@@ -184,9 +193,10 @@ def build_rle_dict(mask_dict, n_objects_dict,
 
         # 레이블 영역 thresholding
         if min_contour_area > 0:
-            mask_postproc = remove_smallest_multiclass(max_masked, min_contour_area, name)
+            mask_postproc = remove_smallest_multiclass(max_masked, min_contour_area, 3)
+
             # rgb 형태 마스크 저장 (확률 반영) - 전처리 없음
-            rgb_image = np.transpose(mask_postproc[1:4, :, :] * 255, (1, 2, 0))
+            rgb_image = np.transpose(mask_postproc[1:num_class, :, :] * 255, (1, 2, 0))
             cv2.imwrite(sub_img_path + name + '_rgb_masked.png', rgb_image)
         else:
             mask_postproc = max_masked
