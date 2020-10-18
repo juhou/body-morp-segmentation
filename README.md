@@ -1,4 +1,5 @@
-# Body segmentation
+
+# body-morp-segmentation
 
 Please see the attached pdf file named '파이프라인 설명서.pdf'
 
@@ -50,7 +51,7 @@ pip install -r requirements.txt
 ## Data Preparation
 
 ```bash
-kaggle competitions download -c body-morphometry-for-sarcopenia
+kaggle competitions download -c body-~~~
 ```
 
 ## Pipeline launch example
