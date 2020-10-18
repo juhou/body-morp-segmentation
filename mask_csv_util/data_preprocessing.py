@@ -49,27 +49,26 @@ def save_train_file(f, out_path, img_size):
         sum_im[:, :, i] = img1[:, :, 0]
     cv2.imwrite('{}/train/{}.png'.format(out_path, name), sum_im)
 
-
-
     # 레이블 이미지
     label_img = imread(args.train_path+ '/Label/' + name + '.png')
     encode = resize(label_img, (img_size, img_size))*255
     expanded_label = np.zeros([img_size, img_size])
     color_im = np.zeros([img_size, img_size, 3])
-    # for i in range(1,4):
-    #     encode_ = to_binary(encode, i*1.0, i*1.0)*1.0*i
-    #
-    #     encode_ = cv2.dilate(encode_, cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3)), iterations=1)
-    #     expanded_label[:, :] += encode_/3
-    #     color_im[:, :, i-1] = encode_ * (255 / i)
     for i in range(1,4):
         encode_ = to_binary(encode, i*1.0, i*1.0)*1.0*i
-        if i == 2:
-            encode_ = cv2.dilate(encode_, cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3)), iterations=1)
+
+        encode_ = cv2.dilate(encode_, cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3)), iterations=1)
         expanded_label[:, :] += encode_/3
         color_im[:, :, i-1] = encode_ * (255 / i)
-    # expanded_label = cv2.erode(expanded_label, cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3)), iterations=1)
-    # color_im[:, :, 2] = (expanded_label > 0) * color_im[:, :, 2]
+
+    # for i in range(1,4):
+    #     encode_ = to_binary(encode, i*1.0, i*1.0)*1.0*i
+    #     if i == 2:
+    #         encode_ = cv2.dilate(encode_, cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3)), iterations=1)
+    #     expanded_label[:, :] += encode_/3
+    #     color_im[:, :, i-1] = encode_ * (255 / i)
+    # # expanded_label = cv2.erode(expanded_label, cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3)), iterations=1)
+    # # color_im[:, :, 2] = (expanded_label > 0) * color_im[:, :, 2]
 
     cv2.imwrite('{}/mask/{}.png'.format(out_path, name), expanded_label*3)
     cv2.imwrite('{}/mask_sum/{}_c.png'.format(out_path, name), color_im)
