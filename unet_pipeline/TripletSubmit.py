@@ -101,60 +101,63 @@ def remove_smallest_multiclass(mask, min_contour_area, iterations=3):
         mask_larges[i,:,:] = cv2.drawContours(mask_larges[i,:,:], max_contours,-1, (255), thickness=cv2.FILLED)
 
 
-    # # 2nd-pass - 겹치는 영역이 젤 많은곳으로 컨투어를 보낸다.
-    # for i in range(0, num_class):
-    #     # 작은 조각 하나씩 둘러보면서 적용하기
-    #     min_contours_ = min_contours[i]
-    #
-    #     for contour in min_contours_:
-    #         # 아주 작은 영역은 스킵
-    #         if len(contour) < 3:
-    #             continue
-    #
-    #         mask_larges_ = mask_larges.copy()/255
-    #
-    #         # 작은 영역은 그린 후 팽창(dilate) 시킨다
-    #         mask_small = cv2.fillPoly(np.zeros([mask_uint8.shape[1],mask_uint8.shape[2]], np.uint8), pts=[contour], color=(255))
-    #         mask_small_dilate = cv2.dilate(mask_small, cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3)), iterations=iterations)
-    #
-    #         # 작은영역 boolean mask
-    #         mask_small_dilate = (mask_small_dilate>0)
-    #
-    #         # 큰 영역의 확률맵
-    #         prob_large_contour = mask * mask_larges_
-    #
-    #         # 확률이 제일 높은 영역의 채널 번호를 가져온다.
-    #         score = []
-    #         for c in range(0, num_class):
-    #             # 탐색하는곳과 원본 class가 같아도, small은 이미 0이므로 그대로 진행
-    #             num_non_zeros = np.count_nonzero((prob_large_contour[c, :, :] * mask_small_dilate))
-    #             if num_non_zeros>0:
-    #                 score.append(((prob_large_contour[c, :, :] * mask_small_dilate).sum()) / num_non_zeros)
-    #             else:
-    #                 score.append(0)
-    #
-    #         # 최고 점수가 나온 채널 획득
-    #         idx = np.argwhere(score == np.amax(score))
-    #
-    #         # 탐지 확률이 매우 낮으면 그리지 않고 스킵한다.
-    #         if (np.max(score) < 0.35):
-    #             continue
-    #
-    #         # 작은 근육 영역은 지방으로 분류되지 않는다.
-    #         if (i==2) & (idx[0]==3):
-    #             idx[0] = 2
-    #
-    #         # 높은 영역의 채널로 small contour를 편입시킨다.
-    #         mask_larges[idx[0], :, :] += mask_small
+    # 2nd-pass - 겹치는 영역이 젤 많은곳으로 컨투어를 보낸다.
+    for i in range(0, num_class):
+        # 작은 조각 하나씩 둘러보면서 적용하기
+        min_contours_ = min_contours[i]
+
+        for contour in min_contours_:
+            # 아주 작은 영역은 스킵
+            # if len(contour) < 3:
+            #     continue
+
+            mask_larges_ = mask_larges.copy()/255
+
+            # 작은 영역은 그린 후 팽창(dilate) 시킨다
+            mask_small = cv2.drawContours(np.zeros([mask_uint8.shape[1],mask_uint8.shape[2]], np.uint8), contour,-1, (255), thickness=cv2.FILLED)
+                #= cv2.fillPoly(np.zeros([mask_uint8.shape[1],mask_uint8.shape[2]], np.uint8), pts=[contour], color=(255))
+            mask_small_dilate = cv2.dilate(mask_small, cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3)), iterations=iterations)
+
+            # 작은영역 boolean mask
+            mask_small_dilate = (mask_small_dilate>0)
+
+            # 큰 영역의 확률맵
+            prob_large_contour = mask * mask_larges_
+
+            # 확률이 제일 높은 영역의 채널 번호를 가져온다.
+            score = []
+            for c in range(0, num_class):
+                # # 탐색하는곳과 원본 class가 같아도, small은 이미 0이므로 그대로 진행
+                # num_non_zeros = np.count_nonzero((prob_large_contour[c, :, :] * mask_small_dilate))
+                # if num_non_zeros>0:
+                score.append(((prob_large_contour[c, :, :] * mask_small_dilate).sum()))
+
+                    #score.append(((prob_large_contour[c, :, :] * mask_small_dilate).sum()) / num_non_zeros)
+                # else:
+                #     score.append(0)
+
+            # 최고 점수가 나온 채널 획득
+            idx = np.argwhere(score == np.amax(score))
+
+            # 탐지 확률이 매우 낮으면 그리지 않고 스킵한다.
+            # if (np.max(score) < 0.35):
+            #     continue
+
+            # 작은 근육 영역은 지방으로 분류되지 않는다.
+            # if (i==2) & (idx[0]==3):
+            #     idx[0] = 2
+
+            # 높은 영역의 채널로 small contour를 편입시킨다.
+            mask_larges[idx[0], :, :] += mask_small
 
     return mask_larges.astype(np.float64)/255.0
 
 
 
-def build_rle_dict(mask_dict, n_objects_dict,  
+def build_rle_dict(mask_dict, n_objects_dict,
                    area_threshold, top_score_threshold,
                    bottom_score_threshold,
-                   leak_score_threshold, 
+                   leak_score_threshold,
                    use_contours, min_contour_area, sub_img_path):
     rle_dict = {}
 
@@ -165,7 +168,7 @@ def build_rle_dict(mask_dict, n_objects_dict,
         #     pass
         # else:
         #     continue
-
+        mask[mask <= 0.27] = 0
         num_class = mask.shape[0]
 
         if mask.shape[1] != 512:
@@ -257,13 +260,13 @@ def main():
     config_path = Path(args.cfg.strip("/"))
     sub_config = load_yaml(config_path)
     print(sub_config)
-    
+
     sample_sub = pd.read_csv(sub_config['SAMPLE_SUB'])
     n_objects_dict = sample_sub.ImageId.value_counts().to_dict()
-    
+
     print('start loading mask results....')
     mask_dict = load_mask_dict(sub_config)
-    
+
     use_contours = sub_config['USECONTOURS']
     min_contour_area = sub_config.get('MIN_CONTOUR_AREA', 0)
 
