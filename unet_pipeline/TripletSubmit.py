@@ -49,21 +49,9 @@ def remove_smallest(mask, min_contour_area):
 
 def apply_thresholds(mask, n_objects, area_threshold, top_score_threshold,
                      bottom_score_threshold, leak_score_threshold, use_contours, min_contour_area, name_i):
-    # if n_objects == 1:
-    #     crazy_mask = (mask > top_score_threshold).astype(np.uint8)
-    #     if crazy_mask.sum() < area_threshold:
-    #         return -1
-    #     mask = (mask > bottom_score_threshold).astype(np.uint8)
-    # else:
-    #
+
     mask = mask.astype(np.uint8) * 255
 
-    # if min_contour_area > 0:
-    #     choosen = remove_smallest(mask, min_contour_area)
-    # elif use_contours:
-    #     choosen = extract_largest(mask, n_objects)
-    # else:
-    #     choosen = mask * 255
 
     if mask.shape[0] == 512:
         reshaped_mask = mask
@@ -115,7 +103,6 @@ def remove_smallest_multiclass(mask, min_contour_area, iterations=3):
 
             # 작은 영역은 그린 후 팽창(dilate) 시킨다
             mask_small = cv2.drawContours(np.zeros([mask_uint8.shape[1],mask_uint8.shape[2]], np.uint8), contour,-1, (255), thickness=cv2.FILLED)
-                #= cv2.fillPoly(np.zeros([mask_uint8.shape[1],mask_uint8.shape[2]], np.uint8), pts=[contour], color=(255))
             mask_small_dilate = cv2.dilate(mask_small, cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3)), iterations=iterations)
 
             # 작은영역 boolean mask
@@ -127,25 +114,10 @@ def remove_smallest_multiclass(mask, min_contour_area, iterations=3):
             # 확률이 제일 높은 영역의 채널 번호를 가져온다.
             score = []
             for c in range(0, num_class):
-                # # 탐색하는곳과 원본 class가 같아도, small은 이미 0이므로 그대로 진행
-                # num_non_zeros = np.count_nonzero((prob_large_contour[c, :, :] * mask_small_dilate))
-                # if num_non_zeros>0:
                 score.append(((prob_large_contour[c, :, :] * mask_small_dilate).sum()))
-
-                    #score.append(((prob_large_contour[c, :, :] * mask_small_dilate).sum()) / num_non_zeros)
-                # else:
-                #     score.append(0)
 
             # 최고 점수가 나온 채널 획득
             idx = np.argwhere(score == np.amax(score))
-
-            # 탐지 확률이 매우 낮으면 그리지 않고 스킵한다.
-            # if (np.max(score) < 0.35):
-            #     continue
-
-            # 작은 근육 영역은 지방으로 분류되지 않는다.
-            # if (i==2) & (idx[0]==3):
-            #     idx[0] = 2
 
             # 높은 영역의 채널로 small contour를 편입시킨다.
             mask_larges[idx[0], :, :] += mask_small
@@ -162,13 +134,6 @@ def build_rle_dict(mask_dict, n_objects_dict,
     rle_dict = {}
 
     for name, mask in tqdm(mask_dict.items()):
-
-
-        # if name in ['case232','case223','case213']:
-        #     pass
-        # else:
-        #     continue
-        mask[mask <= 0.27] = 0
         num_class = mask.shape[0]
 
         if mask.shape[1] != 512:
