@@ -24,10 +24,10 @@ def argparser():
     parser = argparse.ArgumentParser(description='Prepare png dataset for pneumatorax')
     parser.add_argument('-train_path', default='./rawdata/train', type=str, nargs='?', help='directory with train')
     parser.add_argument('-test_path', default='./rawdata/test', type=str, nargs='?', help='directory with test')
-    parser.add_argument('-out_path', default='./rawdata/dataset512expand', type=str, nargs='?',
+    parser.add_argument('-out_path', default='./rawdata/dataset1024', type=str, nargs='?',
                         help='path for saving dataset')
     parser.add_argument('-n_train', default=-1, type=int, nargs='?', help='size of train dataset')
-    parser.add_argument('-img_size', default=512, type=int, nargs='?', help='image size')
+    parser.add_argument('-img_size', default=1024, type=int, nargs='?', help='image size')
     parser.add_argument('-n_threads', default=4, type=int, nargs='?', help='number of using threads')
     return parser.parse_args()
 
